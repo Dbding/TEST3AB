@@ -188,16 +188,18 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // ★ 更新 icon & 顏色設定：
+            // ★ 顏色＆圖案完整更新版
             const tracks = [
+                // 綠：保持
                 { title: "別憋尿", id: "6Wqo6QDdmyGJzrRdjFHIpJ", color: 0x66bb6a, icon: "🌱" },
-                { title: "風中之王：賓果大典", id: "5H9vjpgQ6KVrnniWCusuRK", color: 0x42a5f5, icon: "👑" },
-                // 解決哥哥：改成藍色睡衣風格（藍色氣球 + 😴）
-                { title: "解決哥哥", id: "1vhgLqFWawvFnaqDqu2cw1", color: 0x1e88e5, icon: "😴" },
-                // 假曬：改成小狗圖案
-                { title: "假曬假曬我要去假曬", id: "7xdlWK8HI9r8fdKROS8cL8", color: 0xffa726, icon: "🐶" },
-                // 凌晨號：改成夜晚意象（月亮）
-                { title: "凌晨號", id: "0hhf9S22WR8ngIV8Hu3Yiu", color: 0xab47bc, icon: "🌙" }
+                // 賓果：紫色氣球 + 👑
+                { title: "風中之王：賓果大典", id: "5H9vjpgQ6KVrnniWCusuRK", color: 0xab47bc, icon: "👑" },
+                // 解決哥哥：藍色氣球 + 🔧
+                { title: "解決哥哥", id: "1vhgLqFWawvFnaqDqu2cw1", color: 0x1e88e5, icon: "🔧" },
+                // 假曬：紅色氣球 + 🐶
+                { title: "假曬假曬我要去假曬", id: "7xdlWK8HI9r8fdKROS8cL8", color: 0xef5350, icon: "🐶" },
+                // 凌晨號：黃色氣球 + 🌙
+                { title: "凌晨號", id: "0hhf9S22WR8ngIV8Hu3Yiu", color: 0xffc107, icon: "🌙" }
             ];
 
             const playerArea = document.getElementById('player-area');
@@ -210,7 +212,7 @@
             const tooltipIcon = document.getElementById('balloon-tooltip-icon');
             const tooltipTitle = document.getElementById('balloon-tooltip-title');
 
-            // ★ 播放邏輯 + 播放器顏色同步
+            // 播放邏輯 + 播放器顏色同步
             function playTrack(track) {
                 playerArea.classList.add('active');
                 playerTitle.textContent = track.title;
