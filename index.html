@@ -108,8 +108,17 @@
             border: 1px solid rgba(230, 169, 24, 0.5);
             transform: translate(-50%, -100%);
             display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.2rem;
+            max-width: 260px;
+        }
+
+        .interaction-hint__row {
+            display: inline-flex;
             align-items: center;
             gap: 0.35rem;
+            white-space: nowrap;
         }
 
         .interaction-hint__icon {
@@ -117,6 +126,16 @@
         }
         .interaction-hint__title {
             font-weight: 900;
+        }
+
+        .interaction-hint__lyric {
+            font-weight: 600;
+            font-size: 0.72rem;
+            letter-spacing: 0;
+            opacity: 0.85;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         /* 標題輕微浮動 */
@@ -136,8 +155,11 @@
 
     <!-- Tooltip -->
     <div id="balloon-tooltip" class="interaction-hint">
-        <span class="interaction-hint__icon" id="balloon-tooltip-icon"></span>
-        <span class="interaction-hint__title" id="balloon-tooltip-title"></span>
+        <div class="interaction-hint__row">
+            <span class="interaction-hint__icon" id="balloon-tooltip-icon"></span>
+            <span class="interaction-hint__title" id="balloon-tooltip-title"></span>
+        </div>
+        <span class="interaction-hint__lyric" id="balloon-tooltip-lyric"></span>
     </div>
 
     <!-- 返回主頁 -->
@@ -183,23 +205,51 @@
     </div>
 
     <footer class="fixed bottom-2 w-full text-center text-[#8d6e63] text-[10px] md:text-xs z-10 pointer-events-none opacity-70 font-bold">
-        <p>© 2025 Wang Bu-Wang. All Rights Reserved.</p>
+        <p>© 2025 Wang Bu-Wang. All Rights Reserved。</p>
     </footer>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // ★ 顏色＆圖案完整更新版
+            // 歌曲 & 圖示 & 顏色 & （凌晨號）歌詞
             const tracks = [
-                // 綠：保持
                 { title: "別憋尿", id: "6Wqo6QDdmyGJzrRdjFHIpJ", color: 0x66bb6a, icon: "🌱" },
-                // 賓果：紫色氣球 + 👑
                 { title: "風中之王：賓果大典", id: "5H9vjpgQ6KVrnniWCusuRK", color: 0xab47bc, icon: "👑" },
-                // 解決哥哥：藍色氣球 + 🔧
                 { title: "解決哥哥", id: "1vhgLqFWawvFnaqDqu2cw1", color: 0x1e88e5, icon: "🔧" },
-                // 假曬：紅色氣球 + 🐶
                 { title: "假曬假曬我要去假曬", id: "7xdlWK8HI9r8fdKROS8cL8", color: 0xef5350, icon: "🐶" },
-                // 凌晨號：黃色氣球 + 🌙
-                { title: "凌晨號", id: "0hhf9S22WR8ngIV8Hu3Yiu", color: 0xffc107, icon: "🌙" }
+                { 
+                    title: "凌晨號", 
+                    id: "0hhf9S22WR8ngIV8Hu3Yiu", 
+                    color: 0xffc107, 
+                    icon: "🌙",
+                    lyrics: [
+                        "Passion, feel right，慢慢醒來",
+                        "你站在硝聲光照陰霾，流星拂來尤然還在",
+                        "凌晨號 我們映照",
+                        "世界在很安靜地張開",
+                        "宸色沿著天空伸展",
+                        "林色退後，你微微亮起",
+                        "我聽見你心裡一簇小小的光",
+                        "我們迎著浩，凌晨號輕揚",
+                        "林色退後，宸光展開，浩瀚全都照進來",
+                        "你的存在讓天慢慢變亮",
+                        "Let the first light carry us home",
+                        "Let the quiet dawn unfold",
+                        "In every breath you rise, you rise",
+                        "A gentle world begins to glow",
+                        "海面像呼吸般平穩",
+                        "你的影子在晨光裡越來越清楚",
+                        "凌晨號啟航，我們迎著",
+                        "未來在你眼裡悄悄盛開",
+                        "天幕被光推得更遠",
+                        "林色退後，你把黑暗都溫柔了",
+                        "光落在你身上像是祝福",
+                        "世界因你而重新明亮",
+                        "Carry this dawn, carry this hope",
+                        "Let every shadow fade below",
+                        "You are the light, the rising glow",
+                        "And we sail on, we sail on"
+                    ]
+                }
             ];
 
             const playerArea = document.getElementById('player-area');
@@ -211,6 +261,23 @@
             const tooltip = document.getElementById('balloon-tooltip');
             const tooltipIcon = document.getElementById('balloon-tooltip-icon');
             const tooltipTitle = document.getElementById('balloon-tooltip-title');
+            const tooltipLyric = document.getElementById('balloon-tooltip-lyric');
+
+            // 歌詞輪播狀態（僅用在凌晨號）
+            const LYRIC_INTERVAL = 2600; // 每 2.6 秒換一句
+            const lyricState = {
+                trackId: null,
+                index: 0,
+                lastTime: 0
+            };
+
+            function resetLyricState() {
+                lyricState.trackId = null;
+                lyricState.index = 0;
+                lyricState.lastTime = 0;
+                tooltipLyric.textContent = "";
+                tooltipLyric.style.display = "none";
+            }
 
             // 播放邏輯 + 播放器顏色同步
             function playTrack(track) {
@@ -519,12 +586,16 @@
                     hoveredBalloon = null;
                     tooltip.style.opacity = 0;
                     document.body.style.cursor = 'default';
+                    // 若沒 hover，就把歌詞狀態清掉
+                    resetLyricState();
 
                     const balloon = findBalloonUnderPointer();
                     if (balloon) {
                         balloon.userData.isHovered = true;
                         hoveredBalloon = balloon;
                         document.body.style.cursor = 'pointer';
+
+                        const track = balloon.userData.track;
 
                         const worldPos = balloon.position.clone();
                         worldPos.project(camera);
@@ -537,9 +608,29 @@
 
                         tooltip.style.left = sx + 'px';
                         tooltip.style.top = sy + 'px';
-                        tooltipIcon.textContent = balloon.userData.track.icon;
-                        tooltipTitle.textContent = balloon.userData.track.title;
+                        tooltipIcon.textContent = track.icon;
+                        tooltipTitle.textContent = track.title;
                         tooltip.style.opacity = 1;
+
+                        // ★ 若是凌晨號，就在底下跑歌詞
+                        if (track.lyrics && track.lyrics.length > 0) {
+                            if (lyricState.trackId !== track.id) {
+                                // 換到新 track（或第一次 hover）
+                                lyricState.trackId = track.id;
+                                lyricState.index = 0;
+                                lyricState.lastTime = time;
+                                tooltipLyric.textContent = track.lyrics[0];
+                            } else if (time - lyricState.lastTime > LYRIC_INTERVAL) {
+                                lyricState.index = (lyricState.index + 1) % track.lyrics.length;
+                                lyricState.lastTime = time;
+                                tooltipLyric.textContent = track.lyrics[lyricState.index];
+                            }
+                            tooltipLyric.style.display = "block";
+                        } else {
+                            // 其他歌不顯示歌詞
+                            tooltipLyric.textContent = "";
+                            tooltipLyric.style.display = "none";
+                        }
                     }
 
                     renderer.render(scene, camera);
