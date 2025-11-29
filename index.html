@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>王不亡 - 凌晨號</title>
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #fffae3;
+            color: #5d4037;
+            overflow: hidden;
+            margin: 0;
+            position: relative;
+        }
+
+        /* 紙張紋理 */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+            mix-blend-mode: multiply;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* 光暈 */
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(circle at 50% 20%, rgba(255,255,255,0.9), rgba(255,250,227,0.9) 40%, rgba(255,204,128,0.4) 70%, rgba(93,64,55,0.3));
+            mix-blend-mode: soft-light;
+            z-index: 2;
+        }
+
+        #canvas-container {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .title-font {
+            font-family: 'Noto Sans TC', sans-serif;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+        }
+
+        .warm-glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 8px 32px rgba(230, 169, 24, 0.15);
+        }
+
+        #artist-name-corner {
+            position: fixed;
+            right: 30px;
+            bottom: 30px;
+            font-size: 3rem;
+            letter-spacing: 0.2rem;
+            color: #e6a918;
+            font-weight: 900;
+            z-index: 15;
+            text-shadow: 2px 2px 0 #fff, 4px 4px 0 rgba(0,0,0,0.05);
+            pointer-events: none;
+            opacity: 0.9;
+        }
+
+        #player-area {
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: translateY(180%);
+        }
+        #player-area.active {
+            transform: translateY(0);
+        }
+
+        /* Tooltip：貼在氣球上方 */
+        .interaction-hint {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            background: rgba(255,255,255,0.9);
+            padding: 6px 14px;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+            font-weight: 800;
+            color: #5d4037;
+            font-size: 0.85rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            border: 1px solid rgba(230, 169, 24, 0.5);
+            transform: translate(-50%, -100%);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .interaction-hint__icon {
+            font-size: 1.1rem;
+        }
+        .interaction-hint__title {
+            font-weight: 900;
+        }
+
+        /* 標題輕微浮動 */
+        .hero-banner h1 {
+            animation: float-soft 5s ease-in-out infinite;
+        }
+        @keyframes float-soft {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+
+    <!-- Tooltip -->
+    <div id="balloon-tooltip" class="interaction-hint">
+        <span class="interaction-hint__icon" id="balloon-tooltip-icon"></span>
+        <span class="interaction-hint__title" id="balloon-tooltip-title"></span>
+    </div>
+
+    <!-- 返回主頁 -->
+    <a id="back-to-home-button" href="https://bright-heliotrope-7c903b.netlify.app/"
+       class="fixed top-6 left-6 z-50 warm-glass text-[#5d4037] px-5 py-3 rounded-full flex items-center gap-2 hover:bg-white hover:scale-105 transition-all shadow-md group cursor-pointer no-underline">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transition-transform group-hover:-translate-x-1" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+        </svg>
+        <span class="hidden sm:inline font-bold text-lg">返回主頁</span>
+    </a>
+
+    <!-- 標題置中 -->
+    <div class="hero-banner fixed top-8 inset-x-0 z-20 pointer-events-none select-none flex flex-col items-center text-center">
+        <h1 class="title-font text-5xl md:text-7xl lg:text-8xl xl:text-9xl text-[#ffb300] drop-shadow-lg"
+            style="text-shadow: 3px 3px 0 #fff, 6px 6px 0 rgba(255, 160, 0, 0.2);">
+            凌晨號
+        </h1>
+        <p class="text-[#8d6e63] mt-2 font-bold tracking-[0.5em] text-xs md:text-sm lg:text-lg bg-white/50 inline-block px-4 py-1 rounded-full backdrop-blur-sm">
+            MINI ALBUM
+        </p>
+    </div>
+
+    <!-- 右下角藝人名稱 -->
+    <div id="artist-name-corner">王不亡</div>
+
+    <!-- 底部播放器 -->
+    <div id="player-area" class="fixed bottom-8 left-1/2 -translate-x-1/2 w-[94%] max-w-lg warm-glass rounded-3xl p-5 shadow-2xl z-50">
+        <div class="flex items-center justify-between mb-4 px-1">
+            <div class="flex items-center gap-4 overflow-hidden">
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#ffca28] flex items-center justify-center text-2xl shadow-inner shrink-0 animate-bounce" id="player-icon">
+                    🎈
+                </div>
+                <div class="min-w-0">
+                    <p id="player-title" class="font-black text-[#5d4037] text-base md:text-xl truncate">準備起飛...</p>
+                    <p class="text-xs md:text-sm text-[#8d6e63] font-bold">正在播放</p>
+                </div>
+            </div>
+            <button id="close-player" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/50 hover:bg-white text-[#8d6e63] transition-colors text-xl font-bold cursor-pointer">&times;</button>
+        </div>
+        <div id="spotify-embed-container" class="w-full rounded-2xl overflow-hidden h-[80px] bg-white/30 shadow-inner">
+        </div>
+    </div>
+
+    <footer class="fixed bottom-2 w-full text-center text-[#8d6e63] text-[10px] md:text-xs z-10 pointer-events-none opacity-70 font-bold">
+        <p>© 2025 Wang Bu-Wang. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tracks = [
+                { title: "別憋尿", id: "6Wqo6QDdmyGJzrRdjFHIpJ", color: 0x66bb6a, icon: "🌱" },
+                { title: "風中之王：賓果大典", id: "5H9vjpgQ6KVrnniWCusuRK", color: 0x42a5f5, icon: "👑" },
+                { title: "解決哥哥", id: "1vhgLqFWawvFnaqDqu2cw1", color: 0xef5350, icon: "🔥" },
+                { title: "假曬假曬我要去假曬", id: "7xdlWK8HI9r8fdKROS8cL8", color: 0xffa726, icon: "☀️" },
+                { title: "凌晨號", id: "0hhf9S22WR8ngIV8Hu3Yiu", color: 0xab47bc, icon: "🚂" }
+            ];
+
+            const playerArea = document.getElementById('player-area');
+            const playerTitle = document.getElementById('player-title');
+            const spotifyContainer = document.getElementById('spotify-embed-container');
+            const closePlayerBtn = document.getElementById('close-player');
+            const playerIcon = document.getElementById('player-icon');
+
+            const tooltip = document.getElementById('balloon-tooltip');
+            const tooltipIcon = document.getElementById('balloon-tooltip-icon');
+            const tooltipTitle = document.getElementById('balloon-tooltip-title');
+
+            function playTrack(track) {
+                playerArea.classList.add('active');
+                playerTitle.textContent = track.title;
+                playerIcon.textContent = track.icon;
+                playerIcon.style.backgroundColor = '#' + new THREE.Color(track.color).getHexString();
+
+                const embedUrl = `https://open.spotify.com/embed/track/${track.id}?utm_source=generator&theme=0&autoplay=1`;
+                spotifyContainer.innerHTML = `
+                    <iframe style="border-radius:12px" src="${embedUrl}"
+                        width="100%" height="80" frameborder="0"
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        loading="lazy">
+                    </iframe>`;
+                if (window.triggerEnvironmentChange) {
+                    window.triggerEnvironmentChange(track.color);
+                }
+            }
+
+            closePlayerBtn.addEventListener('click', () => {
+                playerArea.classList.remove('active');
+                spotifyContainer.innerHTML = '';
+            });
+
+            function initThreeJS() {
+                const container = document.getElementById('canvas-container');
+                const scene = new THREE.Scene();
+                scene.background = new THREE.Color(0xfffae3);
+                scene.fog = new THREE.Fog(0xfffae3, 200, 900);
+
+                const camera = new THREE.PerspectiveCamera(
+                    60,
+                    window.innerWidth / window.innerHeight,
+                    1,
+                    2000
+                );
+                camera.position.set(0, 0, 600);
+
+                const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                renderer.shadowMap.enabled = true;
+                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                container.appendChild(renderer.domElement);
+
+                // 光
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+                scene.add(ambientLight);
+
+                const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+                dirLight.position.set(200, 400, 200);
+                dirLight.castShadow = true;
+                dirLight.shadow.mapSize.width = 2048;
+                dirLight.shadow.mapSize.height = 2048;
+                scene.add(dirLight);
+
+                const fillLight = new THREE.DirectionalLight(0xffd54f, 0.5);
+                fillLight.position.set(-200, 100, 200);
+                scene.add(fillLight);
+
+                const raycaster = new THREE.Raycaster();
+                const pointer = new THREE.Vector2();
+                let hoveredBalloon = null;
+                let pointerActive = false;
+
+                const cameraBasePos = new THREE.Vector3(0, 0, 600);
+                const cameraTargetOffset = new THREE.Vector3(0, 0, 0);
+
+                const balloons = [];
+
+                function create3DBalloon(track) {
+                    const balloonGroup = new THREE.Group();
+
+                    const balloonGeo = new THREE.SphereGeometry(34, 32, 32);
+                    balloonGeo.applyMatrix4(new THREE.Matrix4().makeScale(1, 1.1, 1));
+
+                    const balloonMat = new THREE.MeshPhysicalMaterial({
+                        color: track.color,
+                        metalness: 0.1,
+                        roughness: 0.2,
+                        clearcoat: 0.8,
+                        clearcoatRoughness: 0.1,
+                        emissive: track.color,
+                        emissiveIntensity: 0.2
+                    });
+                    const balloonMesh = new THREE.Mesh(balloonGeo, balloonMat);
+                    balloonMesh.castShadow = true;
+                    balloonGroup.add(balloonMesh);
+
+                    const coneGeo = new THREE.ConeGeometry(30, 26, 32, 1, true);
+                    const coneMat = new THREE.MeshStandardMaterial({ color: track.color, roughness: 0.5 });
+                    const cone = new THREE.Mesh(coneGeo, coneMat);
+                    cone.position.y = -32;
+                    cone.rotation.x = Math.PI;
+                    balloonGroup.add(cone);
+
+                    const bBasketGeo = new THREE.BoxGeometry(14, 12, 14);
+                    const bBasketMat = new THREE.MeshStandardMaterial({ color: 0x8d6e63 });
+                    const bBasket = new THREE.Mesh(bBasketGeo, bBasketMat);
+                    bBasket.position.y = -60;
+                    balloonGroup.add(bBasket);
+
+                    const stringGeo = new THREE.CylinderGeometry(0.5, 0.5, 20);
+                    const stringMat = new THREE.MeshBasicMaterial({ color: 0x5d4037 });
+                    const string = new THREE.Mesh(stringGeo, stringMat);
+                    string.position.y = -50;
+                    balloonGroup.add(string);
+
+                    balloonGroup.userData = {
+                        track,
+                        basePos: new THREE.Vector3(0, 0, 0),
+                        randomOffset: Math.random() * 100,
+                        speed: 0.001 + Math.random() * 0.001,
+                        isHovered: false
+                    };
+
+                    scene.add(balloonGroup);
+                    balloons.push(balloonGroup);
+                }
+
+                tracks.forEach(track => create3DBalloon(track));
+
+                function layoutBalloons() {
+                    const total = balloons.length;
+                    if (!total) return;
+
+                    const availableWidth = window.innerWidth * 0.8;
+                    const baseSpacing = 140;
+                    const spacing = Math.min(baseSpacing, availableWidth / Math.max(total - 1, 1));
+
+                    const startX = -spacing * (total - 1) / 2;
+                    const y = (window.innerHeight > 700) ? 80 : 40; // 中間略偏上，手機再微上移
+
+                    balloons.forEach((b, i) => {
+                        const x = startX + i * spacing;
+                        b.userData.basePos.set(x, y, 0);
+                        b.position.set(x, y, 0);
+                    });
+                }
+
+                layoutBalloons();
+
+                // 背景幾何體
+                const floaters = [];
+                const floaterGeos = [
+                    new THREE.IcosahedronGeometry(18, 0),
+                    new THREE.OctahedronGeometry(14, 0),
+                    new THREE.TetrahedronGeometry(16, 0)
+                ];
+                for (let i = 0; i < 80; i++) {
+                    const geo = floaterGeos[Math.floor(Math.random() * floaterGeos.length)];
+                    const mat = new THREE.MeshStandardMaterial({
+                        color: Math.random() > 0.5 ? 0xffe082 : 0xffffff,
+                        transparent: true,
+                        opacity: 0.7,
+                        roughness: 0.4
+                    });
+                    const mesh = new THREE.Mesh(geo, mat);
+                    mesh.position.set(
+                        (Math.random() - 0.5) * 1200,
+                        (Math.random() * -400) - 80,
+                        (Math.random() - 0.5) * 500
+                    );
+                    mesh.userData = {
+                        rotSpeed: new THREE.Vector3(
+                            (Math.random() - 0.5) * 0.08,
+                            (Math.random() - 0.5) * 0.08,
+                            (Math.random() - 0.5) * 0.08
+                        ),
+                        baseY: mesh.position.y
+                    };
+                    scene.add(mesh);
+                    floaters.push(mesh);
+                }
+
+                const clouds = [];
+                const cloudGeo = new THREE.DodecahedronGeometry(30, 0);
+                for (let i = 0; i < 12; i++) {
+                    const cloud = new THREE.Group();
+                    const cMat = new THREE.MeshStandardMaterial({
+                        color: 0xffffff,
+                        flatShading: true,
+                        transparent: true,
+                        opacity: 0.85
+                    });
+
+                    const n = 3 + Math.floor(Math.random() * 3);
+                    for (let j = 0; j < n; j++) {
+                        const m = new THREE.Mesh(cloudGeo, cMat);
+                        m.position.set(
+                            (Math.random() - 0.5) * 50,
+                            (Math.random() - 0.5) * 20,
+                            (Math.random() - 0.5) * 20
+                        );
+                        const s = 0.7 + Math.random() * 0.9;
+                        m.scale.set(s, s, s);
+                        cloud.add(m);
+                    }
+
+                    cloud.position.set(
+                        (Math.random() - 0.5) * 1500,
+                        Math.random() * 400 - 200,
+                        -300 - Math.random() * 400
+                    );
+                    cloud.userData = { speed: 0.25 + Math.random() * 0.2 };
+                    scene.add(cloud);
+                    clouds.push(cloud);
+                }
+
+                window.triggerEnvironmentChange = (colorHex) => {
+                    const color = new THREE.Color(colorHex);
+                    dirLight.color.lerp(color, 0.5);
+                    fillLight.color.lerp(color, 0.5);
+                    scene.fog.color.lerp(color, 0.1);
+                    scene.background.lerp(new THREE.Color(0xfffae3).lerp(color, 0.1), 0.1);
+                };
+
+                function updatePointerFromEvent(event) {
+                    const rect = renderer.domElement.getBoundingClientRect();
+                    pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                    pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+                    pointerActive = true;
+                }
+
+                function findBalloonUnderPointer() {
+                    if (!pointerActive) return null;
+                    raycaster.setFromCamera(pointer, camera);
+                    const intersects = raycaster.intersectObjects(scene.children, true);
+
+                    for (let i = 0; i < intersects.length; i++) {
+                        let obj = intersects[i].object;
+                        while (obj.parent && obj.parent !== scene) {
+                            obj = obj.parent;
+                        }
+                        const balloon = balloons.find(b => b === obj);
+                        if (balloon) return balloon;
+                    }
+                    return null;
+                }
+
+                function animate() {
+                    requestAnimationFrame(animate);
+                    const time = Date.now();
+
+                    const autoX = Math.sin(time * 0.00015) * 18;
+                    const autoY = Math.cos(time * 0.0001) * 10;
+                    const desiredPos = new THREE.Vector3(
+                        cameraBasePos.x + cameraTargetOffset.x + autoX,
+                        cameraBasePos.y + cameraTargetOffset.y + autoY,
+                        cameraBasePos.z
+                    );
+                    camera.position.lerp(desiredPos, 0.05);
+                    camera.lookAt(0, 0, 0);
+
+                    balloons.forEach(b => {
+                        const ud = b.userData;
+                        const floatY = Math.sin(time * ud.speed + ud.randomOffset) * 20;
+                        const floatX = Math.cos(time * ud.speed * 1.2 + ud.randomOffset) * 16;
+
+                        let targetScale = 1;
+                        let lift = 0;
+
+                        if (ud.isHovered) {
+                            targetScale = 1.25;
+                            lift = -16;
+                            b.rotation.z = Math.sin(time * 0.01) * 0.12;
+                            const mesh = b.children[0];
+                            if (mesh && mesh.material && mesh.material.emissive) {
+                                mesh.material.emissiveIntensity = 0.6;
+                            }
+                        } else {
+                            b.rotation.z = Math.sin(time * ud.speed + ud.randomOffset) * 0.05;
+                            const mesh = b.children[0];
+                            if (mesh && mesh.material && mesh.material.emissive) {
+                                mesh.material.emissiveIntensity = 0.2;
+                            }
+                        }
+
+                        b.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.12);
+                        b.position.x = ud.basePos.x + floatX;
+                        b.position.y = ud.basePos.y + floatY + lift;
+                    });
+
+                    floaters.forEach(f => {
+                        f.rotation.x += f.userData.rotSpeed.x;
+                        f.rotation.y += f.userData.rotSpeed.y;
+                        f.position.y = f.userData.baseY + Math.sin(time * 0.002 + f.position.x) * 18;
+                    });
+
+                    clouds.forEach(c => {
+                        c.position.x += c.userData.speed;
+                        if (c.position.x > 1000) c.position.x = -1000;
+                    });
+
+                    balloons.forEach(b => b.userData.isHovered = false);
+                    hoveredBalloon = null;
+                    tooltip.style.opacity = 0;
+                    document.body.style.cursor = 'default';
+
+                    const balloon = findBalloonUnderPointer();
+                    if (balloon) {
+                        balloon.userData.isHovered = true;
+                        hoveredBalloon = balloon;
+                        document.body.style.cursor = 'pointer';
+
+                        const worldPos = balloon.position.clone();
+                        worldPos.project(camera);
+                        let sx = (worldPos.x * 0.5 + 0.5) * window.innerWidth;
+                        let sy = (-(worldPos.y * 0.5) + 0.5) * window.innerHeight - 10;
+
+                        const margin = 20;
+                        sx = Math.min(Math.max(sx, margin), window.innerWidth - margin);
+                        sy = Math.min(Math.max(sy, margin), window.innerHeight - margin);
+
+                        tooltip.style.left = sx + 'px';
+                        tooltip.style.top = sy + 'px';
+                        tooltipIcon.textContent = balloon.userData.track.icon;
+                        tooltipTitle.textContent = balloon.userData.track.title;
+                        tooltip.style.opacity = 1;
+                    }
+
+                    renderer.render(scene, camera);
+                }
+
+                // 用 pointer 事件同時支援滑鼠 + 手機觸控
+                renderer.domElement.addEventListener('pointermove', (event) => {
+                    updatePointerFromEvent(event);
+                    cameraTargetOffset.x = pointer.x * 40;
+                    cameraTargetOffset.y = pointer.y * 20;
+                });
+
+                renderer.domElement.addEventListener('pointerdown', (event) => {
+                    updatePointerFromEvent(event);
+                    const balloon = findBalloonUnderPointer();
+                    if (balloon) {
+                        playTrack(balloon.userData.track);
+                    }
+                });
+
+                window.addEventListener('resize', () => {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                    layoutBalloons();
+                });
+
+                animate();
+            }
+
+            initThreeJS();
+        });
+    </script>
+</body>
+</html>
