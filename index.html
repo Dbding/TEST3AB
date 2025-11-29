@@ -82,7 +82,7 @@
 
         /* 播放器：左下 */
         #player-area {
-            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease, border-color 0.4s ease;
             transform: translateY(180%);
         }
         #player-area.active {
@@ -188,12 +188,16 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // ★ 更新 icon & 顏色設定：
             const tracks = [
                 { title: "別憋尿", id: "6Wqo6QDdmyGJzrRdjFHIpJ", color: 0x66bb6a, icon: "🌱" },
                 { title: "風中之王：賓果大典", id: "5H9vjpgQ6KVrnniWCusuRK", color: 0x42a5f5, icon: "👑" },
-                { title: "解決哥哥", id: "1vhgLqFWawvFnaqDqu2cw1", color: 0xef5350, icon: "🔥" },
-                { title: "假曬假曬我要去假曬", id: "7xdlWK8HI9r8fdKROS8cL8", color: 0xffa726, icon: "☀️" },
-                { title: "凌晨號", id: "0hhf9S22WR8ngIV8Hu3Yiu", color: 0xab47bc, icon: "🚂" }
+                // 解決哥哥：改成藍色睡衣風格（藍色氣球 + 😴）
+                { title: "解決哥哥", id: "1vhgLqFWawvFnaqDqu2cw1", color: 0x1e88e5, icon: "😴" },
+                // 假曬：改成小狗圖案
+                { title: "假曬假曬我要去假曬", id: "7xdlWK8HI9r8fdKROS8cL8", color: 0xffa726, icon: "🐶" },
+                // 凌晨號：改成夜晚意象（月亮）
+                { title: "凌晨號", id: "0hhf9S22WR8ngIV8Hu3Yiu", color: 0xab47bc, icon: "🌙" }
             ];
 
             const playerArea = document.getElementById('player-area');
@@ -206,11 +210,18 @@
             const tooltipIcon = document.getElementById('balloon-tooltip-icon');
             const tooltipTitle = document.getElementById('balloon-tooltip-title');
 
+            // ★ 播放邏輯 + 播放器顏色同步
             function playTrack(track) {
                 playerArea.classList.add('active');
                 playerTitle.textContent = track.title;
                 playerIcon.textContent = track.icon;
-                playerIcon.style.backgroundColor = '#' + new THREE.Color(track.color).getHexString();
+
+                const colorHex = '#' + new THREE.Color(track.color).getHexString();
+                playerIcon.style.backgroundColor = colorHex;
+
+                // 播放器邊框 & 陰影顏色跟著氣球顏色走
+                playerArea.style.borderColor = colorHex;
+                playerArea.style.boxShadow = `0 0 32px ${colorHex}55`;
 
                 const embedUrl = `https://open.spotify.com/embed/track/${track.id}?utm_source=generator&theme=0&autoplay=1`;
                 spotifyContainer.innerHTML = `
@@ -227,6 +238,9 @@
             closePlayerBtn.addEventListener('click', () => {
                 playerArea.classList.remove('active');
                 spotifyContainer.innerHTML = '';
+                // 關掉時恢復較柔和的陰影
+                playerArea.style.boxShadow = "0 8px 32px rgba(230, 169, 24, 0.15)";
+                playerArea.style.borderColor = "rgba(255, 255, 255, 0.9)";
             });
 
             function initThreeJS() {
