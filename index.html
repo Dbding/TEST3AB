@@ -528,113 +528,130 @@
                     return null;
                 }
 
-                function animate() {
-                    requestAnimationFrame(animate);
-                    const time = Date.now();
+function animate() {
+    requestAnimationFrame(animate);
+    const time = Date.now();
 
-                    const autoX = Math.sin(time * 0.00015) * 18;
-                    const autoY = Math.cos(time * 0.0001) * 10;
-                    const desiredPos = new THREE.Vector3(
-                        cameraBasePos.x + cameraTargetOffset.x + autoX,
-                        cameraBasePos.y + cameraTargetOffset.y + autoY,
-                        cameraBasePos.z
-                    );
-                    camera.position.lerp(desiredPos, 0.05);
-                    camera.lookAt(0, 0, 0);
+    // 相機微動
+    const autoX = Math.sin(time * 0.00015) * 18;
+    const autoY = Math.cos(time * 0.0001) * 10;
+    const desiredPos = new THREE.Vector3(
+        cameraBasePos.x + cameraTargetOffset.x + autoX,
+        cameraBasePos.y + cameraTargetOffset.y + autoY,
+        cameraBasePos.z
+    );
+    camera.position.lerp(desiredPos, 0.05);
+    camera.lookAt(0, 0, 0);
 
-                    balloons.forEach(b => {
-                        const ud = b.userData;
-                        const floatY = Math.sin(time * ud.speed + ud.randomOffset) * 20;
-                        const floatX = Math.cos(time * ud.speed * 1.2 + ud.randomOffset) * 16;
+    // 氣球浮動
+    balloons.forEach(b => {
+        const ud = b.userData;
+        const floatY = Math.sin(time * ud.speed + ud.randomOffset) * 20;
+        const floatX = Math.cos(time * ud.speed * 1.2 + ud.randomOffset) * 16;
 
-                        let targetScale = 1;
-                        let lift = 0;
+        let targetScale = 1;
+        let lift = 0;
 
-                        if (ud.isHovered) {
-                            targetScale = 1.25;
-                            lift = -16;
-                            b.rotation.z = Math.sin(time * 0.01) * 0.12;
-                            const mesh = b.children[0];
-                            if (mesh && mesh.material && mesh.material.emissive) {
-                                mesh.material.emissiveIntensity = 0.6;
-                            }
-                        } else {
-                            b.rotation.z = Math.sin(time * ud.speed + ud.randomOffset) * 0.05;
-                            const mesh = b.children[0];
-                            if (mesh && mesh.material && mesh.material.emissive) {
-                                mesh.material.emissiveIntensity = 0.2;
-                            }
-                        }
+        if (ud.isHovered) {
+            targetScale = 1.25;
+            lift = -16;
+            b.rotation.z = Math.sin(time * 0.01) * 0.12;
+            const mesh = b.children[0];
+            if (mesh && mesh.material && mesh.material.emissive) {
+                mesh.material.emissiveIntensity = 0.6;
+            }
+        } else {
+            b.rotation.z = Math.sin(time * ud.speed + ud.randomOffset) * 0.05;
+            const mesh = b.children[0];
+            if (mesh && mesh.material && mesh.material.emissive) {
+                mesh.material.emissiveIntensity = 0.2;
+            }
+        }
 
-                        b.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.12);
-                        b.position.x = ud.basePos.x + floatX;
-                        b.position.y = ud.basePos.y + floatY + lift;
-                    });
+        b.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.12);
+        b.position.x = ud.basePos.x + floatX;
+        b.position.y = ud.basePos.y + floatY + lift;
+    });
 
-                    floaters.forEach(f => {
-                        f.rotation.x += f.userData.rotSpeed.x;
-                        f.rotation.y += f.userData.rotSpeed.y;
-                        f.position.y = f.userData.baseY + Math.sin(time * 0.002 + f.position.x) * 18;
-                    });
+    // 背景幾何
+    floaters.forEach(f => {
+        f.rotation.x += f.userData.rotSpeed.x;
+        f.rotation.y += f.userData.rotSpeed.y;
+        f.position.y = f.userData.baseY + Math.sin(time * 0.002 + f.position.x) * 18;
+    });
 
-                    clouds.forEach(c => {
-                        c.position.x += c.userData.speed;
-                        if (c.position.x > 1000) c.position.x = -1000;
-                    });
+    // 雲
+    clouds.forEach(c => {
+        c.position.x += c.userData.speed;
+        if (c.position.x > 1000) c.position.x = -1000;
+    });
 
-                    balloons.forEach(b => b.userData.isHovered = false);
-                    hoveredBalloon = null;
-                    tooltip.style.opacity = 0;
-                    document.body.style.cursor = 'default';
-                    // 若沒 hover，就把歌詞狀態清掉
-                    resetLyricState();
+    // 重置 hover 狀態 / tooltip 外觀
+    balloons.forEach(b => b.userData.isHovered = false);
+    hoveredBalloon = null;
+    tooltip.style.opacity = 0;
+    document.body.style.cursor = 'default';
 
-                    const balloon = findBalloonUnderPointer();
-                    if (balloon) {
-                        balloon.userData.isHovered = true;
-                        hoveredBalloon = balloon;
-                        document.body.style.cursor = 'pointer';
+    // 看現在指標底下有沒有氣球
+    const balloon = findBalloonUnderPointer();
 
-                        const track = balloon.userData.track;
+    if (balloon) {
+        balloon.userData.isHovered = true;
+        hoveredBalloon = balloon;
+        document.body.style.cursor = 'pointer';
 
-                        const worldPos = balloon.position.clone();
-                        worldPos.project(camera);
-                        let sx = (worldPos.x * 0.5 + 0.5) * window.innerWidth;
-                        let sy = (-(worldPos.y * 0.5) + 0.5) * window.innerHeight - 10;
+        const track = balloon.userData.track;
 
-                        const margin = 20;
-                        sx = Math.min(Math.max(sx, margin), window.innerWidth - margin);
-                        sy = Math.min(Math.max(sy, margin), window.innerHeight - margin);
+        // tooltip 位置
+        const worldPos = balloon.position.clone();
+        worldPos.project(camera);
+        let sx = (worldPos.x * 0.5 + 0.5) * window.innerWidth;
+        let sy = (-(worldPos.y * 0.5) + 0.5) * window.innerHeight - 10;
 
-                        tooltip.style.left = sx + 'px';
-                        tooltip.style.top = sy + 'px';
-                        tooltipIcon.textContent = track.icon;
-                        tooltipTitle.textContent = track.title;
-                        tooltip.style.opacity = 1;
+        const margin = 20;
+        sx = Math.min(Math.max(sx, margin), window.innerWidth - margin);
+        sy = Math.min(Math.max(sy, margin), window.innerHeight - margin);
 
-                        // ★ 若是凌晨號，就在底下跑歌詞
-                        if (track.lyrics && track.lyrics.length > 0) {
-                            if (lyricState.trackId !== track.id) {
-                                // 換到新 track（或第一次 hover）
-                                lyricState.trackId = track.id;
-                                lyricState.index = 0;
-                                lyricState.lastTime = time;
-                                tooltipLyric.textContent = track.lyrics[0];
-                            } else if (time - lyricState.lastTime > LYRIC_INTERVAL) {
-                                lyricState.index = (lyricState.index + 1) % track.lyrics.length;
-                                lyricState.lastTime = time;
-                                tooltipLyric.textContent = track.lyrics[lyricState.index];
-                            }
-                            tooltipLyric.style.display = "block";
-                        } else {
-                            // 其他歌不顯示歌詞
-                            tooltipLyric.textContent = "";
-                            tooltipLyric.style.display = "none";
-                        }
-                    }
+        tooltip.style.left = sx + 'px';
+        tooltip.style.top = sy + 'px';
+        tooltipIcon.textContent = track.icon;
+        tooltipTitle.textContent = track.title;
+        tooltip.style.opacity = 1;
 
-                    renderer.render(scene, camera);
-                }
+        // ★ 只有「凌晨號」那種有 lyrics 的才跑歌詞
+        if (track.lyrics && track.lyrics.length > 0) {
+            // 第一次 hover 或剛從別首歌切過來
+            if (lyricState.trackId !== track.id) {
+                lyricState.trackId = track.id;
+                lyricState.index = 0;
+                lyricState.lastTime = time;
+                tooltipLyric.textContent = track.lyrics[0];
+            } else if (time - lyricState.lastTime > LYRIC_INTERVAL) {
+                // 間隔時間到 → 換下一句
+                lyricState.index = (lyricState.index + 1) % track.lyrics.length;
+                lyricState.lastTime = time;
+                tooltipLyric.textContent = track.lyrics[lyricState.index];
+            }
+            tooltipLyric.style.display = "block";
+        } else {
+            // 其他歌不顯示歌詞
+            tooltipLyric.textContent = "";
+            tooltipLyric.style.display = "none";
+            // 同時把狀態清空，避免殘留
+            lyricState.trackId = null;
+        }
+
+    } else {
+        // 沒有任何氣球被 hover 到 → 歌詞狀態清空
+        lyricState.trackId = null;
+        lyricState.index = 0;
+        lyricState.lastTime = 0;
+        tooltipLyric.textContent = "";
+        tooltipLyric.style.display = "none";
+    }
+
+    renderer.render(scene, camera);
+}
 
                 // pointer 事件支援滑鼠 + 手機觸控
                 renderer.domElement.addEventListener('pointermove', (event) => {
@@ -666,3 +683,4 @@
     </script>
 </body>
 </html>
+
