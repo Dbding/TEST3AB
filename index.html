@@ -547,26 +547,26 @@
 
                 tracks.forEach(track => create3DBalloon(track));
 
-                // 這裡做「上排 3 顆、風中之王 & 假曬下移一排」
+                // 上三下二，兩排排得比較緊
                 function layoutBalloons() {
                     const total = balloons.length;
                     if (!total) return;
 
                     const availableWidth = window.innerWidth * 0.8;
-                    const baseSpacing = 140;
+                    const baseSpacing = 110; // 更緊
                     const spacing = Math.min(baseSpacing, availableWidth / Math.max(total - 1, 1));
 
                     const startX = -spacing * (total - 1) / 2;
                     const yTop = (window.innerHeight > 700) ? 80 : 40;
-                    const rowOffset = (window.innerHeight > 700) ? 90 : 70; // 中排往下距離
+                    const rowOffset = (window.innerHeight > 700) ? 90 : 70; // 第二排距離
 
                     balloons.forEach((b, i) => {
                         let x = startX + i * spacing;
                         let y = yTop;
 
-                        // i === 1: 風中之王, i === 3: 假曬 → 往下成為中排
+                        // i === 1: 賓果, i === 3: 假曬 → 第二排，往畫面「下方」移
                         if (i === 1 || i === 3) {
-                            y = yTop + rowOffset;
+                            y = yTop - rowOffset; // three.js y 往下是減少
                         }
 
                         b.userData.basePos.set(x, y, 0);
@@ -766,14 +766,14 @@
                                 mesh.material.emissiveIntensity = 0.2;
                             }
                         } else if (b === hoveredBalloon) {
-                            targetScale = 1.3;
+                            targetScale = 1.35;
                             b.rotation.z = Math.sin(time * 0.01) * 0.08;
                             const mesh = b.children[0];
                             if (mesh && mesh.material && mesh.material.emissive) {
                                 mesh.material.emissiveIntensity = 0.6;
                             }
                         } else {
-                            targetScale = 0.85;
+                            targetScale = 0.65; // 其他更縮小
                             b.rotation.z = Math.sin(floatPhase) * 0.03;
                             const mesh = b.children[0];
                             if (mesh && mesh.material && mesh.material.emissive) {
