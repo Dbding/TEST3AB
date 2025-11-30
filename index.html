@@ -68,7 +68,7 @@
         /* 右上小小「王不亡」 */
         #artist-name-corner {
             position: fixed;
-            top: 110px;          /* 比標題略低 */
+            top: 110px;
             right: 30px;
             font-size: 1.2rem;
             letter-spacing: 0.15rem;
@@ -415,7 +415,7 @@
             const tooltipLyric = document.getElementById('balloon-tooltip-lyric');
 
             // 歌詞輪播設定（全部歌曲共用）
-            const LYRIC_INTERVAL = 1300; // 每 1.3 秒換一句
+            const LYRIC_INTERVAL = 2600; // 每 2.6 秒換一句
             const lyricState = {
                 trackId: null,
                 index: 0,
@@ -458,7 +458,6 @@
             closePlayerBtn.addEventListener('click', () => {
                 playerArea.classList.remove('active');
                 spotifyContainer.innerHTML = '';
-                // 關掉時恢復較柔和的陰影
                 playerArea.style.boxShadow = '0 8px 32px rgba(230, 169, 24, 0.15)';
                 playerArea.style.borderColor = 'rgba(255, 255, 255, 0.9)';
             });
@@ -694,36 +693,6 @@
                     camera.position.lerp(desiredPos, 0.05);
                     camera.lookAt(0, 0, 0);
 
-                    // 氣球浮動
-                    balloons.forEach(b => {
-                        const ud = b.userData;
-                        const floatY = Math.sin(time * ud.speed + ud.randomOffset) * 20;
-                        const floatX = Math.cos(time * ud.speed * 1.2 + ud.randomOffset) * 16;
-
-                        let targetScale = 1;
-                        let lift = 0;
-
-                        if (ud.isHovered) {
-                            targetScale = 1.25;
-                            lift = -16;
-                            b.rotation.z = Math.sin(time * 0.01) * 0.12;
-                            const mesh = b.children[0];
-                            if (mesh && mesh.material && mesh.material.emissive) {
-                                mesh.material.emissiveIntensity = 0.6;
-                            }
-                        } else {
-                            b.rotation.z = Math.sin(time * ud.speed + ud.randomOffset) * 0.05;
-                            const mesh = b.children[0];
-                            if (mesh && mesh.material && mesh.material.emissive) {
-                                mesh.material.emissiveIntensity = 0.2;
-                            }
-                        }
-
-                        b.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.12);
-                        b.position.x = ud.basePos.x + floatX;
-                        b.position.y = ud.basePos.y + floatY + lift;
-                    });
-
                     // 背景幾何
                     floaters.forEach(f => {
                         f.rotation.x += f.userData.rotSpeed.x;
@@ -737,7 +706,7 @@
                         if (c.position.x > 1000) c.position.x = -1000;
                     });
 
-                    // 初始 hover 清空
+                    // 先清掉 hover 狀態
                     balloons.forEach(b => b.userData.isHovered = false);
                     hoveredBalloon = null;
                     tooltip.style.opacity = 0;
@@ -771,13 +740,11 @@
                         // 有 lyrics 才輪播
                         if (track.lyrics && track.lyrics.length > 0) {
                             if (lyricState.trackId !== track.id) {
-                                // 首次 hover 或從別首切過來
                                 lyricState.trackId = track.id;
                                 lyricState.index = 0;
                                 lyricState.lastTime = time;
                                 tooltipLyric.textContent = track.lyrics[0];
                             } else if (time - lyricState.lastTime > LYRIC_INTERVAL) {
-                                // 間隔到 → 換下一句
                                 lyricState.index = (lyricState.index + 1) % track.lyrics.length;
                                 lyricState.lastTime = time;
                                 tooltipLyric.textContent = track.lyrics[lyricState.index];
@@ -787,9 +754,48 @@
                             clearLyric();
                         }
                     } else {
-                        // 滑出所有氣球 → 歌詞清空
                         clearLyric();
                     }
+
+                    const anyHovered = !!hoveredBalloon;
+
+                    // 氣球浮動 + 放大/縮小邏輯
+                    balloons.forEach(b => {
+                        const ud = b.userData;
+                        const floatY = Math.sin(time * ud.speed + ud.randomOffset) * 20;
+                        const floatX = Math.cos(time * ud.speed * 1.2 + ud.randomOffset) * 16;
+
+                        let targetScale = 1;
+                        let lift = 0;
+
+                        if (ud.isHovered) {
+                            targetScale = 1.4;  // 被指到的那顆放大
+                            lift = -20;
+                            b.rotation.z = Math.sin(time * 0.01) * 0.12;
+                            const mesh = b.children[0];
+                            if (mesh && mesh.material && mesh.material.emissive) {
+                                mesh.material.emissiveIntensity = 0.6;
+                            }
+                        } else if (anyHovered) {
+                            targetScale = 0.75; // 其他氣球縮小
+                            b.rotation.z = Math.sin(time * ud.speed + ud.randomOffset) * 0.03;
+                            const mesh = b.children[0];
+                            if (mesh && mesh.material && mesh.material.emissive) {
+                                mesh.material.emissiveIntensity = 0.15;
+                            }
+                        } else {
+                            targetScale = 1;    // 沒 hover 時全部回到原始大小
+                            b.rotation.z = Math.sin(time * ud.speed + ud.randomOffset) * 0.05;
+                            const mesh = b.children[0];
+                            if (mesh && mesh.material && mesh.material.emissive) {
+                                mesh.material.emissiveIntensity = 0.2;
+                            }
+                        }
+
+                        b.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.12);
+                        b.position.x = ud.basePos.x + floatX;
+                        b.position.y = ud.basePos.y + floatY + lift;
+                    });
 
                     renderer.render(scene, camera);
                 }
@@ -824,4 +830,3 @@
     </script>
 </body>
 </html>
-
