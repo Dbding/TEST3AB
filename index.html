@@ -128,14 +128,20 @@
             font-weight: 900;
         }
 
+        /* 歌詞：自動換行、不被切掉 */
         .interaction-hint__lyric {
             font-weight: 600;
             font-size: 0.72rem;
             letter-spacing: 0;
             opacity: 0.85;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+
+            white-space: normal;
+            overflow: visible;
+            text-overflow: unset;
+            word-break: break-word;
+
+            max-width: 220px;
+            line-height: 1.2rem;
         }
 
         /* 標題輕微浮動 */
@@ -547,13 +553,14 @@
 
                 tracks.forEach(track => create3DBalloon(track));
 
-                // 上三下二，兩排排得比較緊
+                // 上三下二，左右稍微緊一點，預留邊界避免被切到
                 function layoutBalloons() {
                     const total = balloons.length;
                     if (!total) return;
 
-                    const availableWidth = window.innerWidth * 0.8;
-                    const baseSpacing = 110; // 更緊
+                    const margin = 80; // 左右安全距離
+                    const availableWidth = window.innerWidth - margin * 2;
+                    const baseSpacing = 130; // 稍微緊密
                     const spacing = Math.min(baseSpacing, availableWidth / Math.max(total - 1, 1));
 
                     const startX = -spacing * (total - 1) / 2;
@@ -564,9 +571,9 @@
                         let x = startX + i * spacing;
                         let y = yTop;
 
-                        // i === 1: 賓果, i === 3: 假曬 → 第二排，往畫面「下方」移
+                        // i === 1: 賓果, i === 3: 假曬 → 第二排，往畫面「下方」一點
                         if (i === 1 || i === 3) {
-                            y = yTop - rowOffset; // three.js y 往下是減少
+                            y = yTop - rowOffset; // three.js 座標：數值變小＝畫面往下
                         }
 
                         b.userData.basePos.set(x, y, 0);
