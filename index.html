@@ -164,7 +164,7 @@
 
     <!-- 返回主頁 -->
     <a id="back-to-home-button" href="https://bright-heliotrope-7c903b.netlify.app/"
-       class="fixed top-6 left-6 z-50 warm-glass text-[#5d4037] px-5 py-3 rounded-full flex items-center gap-2 hover:bg白 hover:scale-105 transition-all shadow-md group cursor-pointer no-underline">
+       class="fixed top-6 left-6 z-50 warm-glass text-[#5d4037] px-5 py-3 rounded-full flex items-center gap-2 hover:bg-white hover:scale-105 transition-all shadow-md group cursor-pointer no-underline">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transition-transform group-hover:-translate-x-1" viewBox="0 0 20 20" fill="currentColor">
             <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
         </svg>
@@ -172,7 +172,7 @@
     </a>
 
     <!-- 標題置中 -->
-    <div class="hero-banner fixed top-8 inset-x-0 z-20 pointer-events-none select-none flex flex-col items-center text中心">
+    <div class="hero-banner fixed top-8 inset-x-0 z-20 pointer-events-none select-none flex flex-col items-center text-center">
         <h1 class="title-font text-5xl md:text-7xl lg:text-8xl xl:text-9xl text-[#ffb300] drop-shadow-lg"
             style="text-shadow: 3px 3px 0 #fff, 6px 6px 0 rgba(255, 160, 0, 0.2);">
             凌晨號
@@ -190,7 +190,7 @@
          class="fixed bottom-6 left-6 translate-x-0 w-[88%] max-w-sm md:max-w-md warm-glass rounded-2xl p-4 shadow-2xl z-50">
         <div class="flex items-center justify-between mb-3 px-1">
             <div class="flex items-center gap-3 overflow-hidden">
-                <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#ffca28] flex items中心 justify-center text-2xl shadow-inner shrink-0 animate-bounce" id="player-icon">
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#ffca28] flex items-center justify-center text-2xl shadow-inner shrink-0 animate-bounce" id="player-icon">
                     🎈
                 </div>
                 <div class="min-w-0">
@@ -198,7 +198,7 @@
                     <p class="text-xs md:text-sm text-[#8d6e63] font-bold">正在播放</p>
                 </div>
             </div>
-            <button id="close-player" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/50 hover:bg白 text-[#8d6e63] transition-colors text-xl font-bold cursor-pointer">&times;</button>
+            <button id="close-player" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/50 hover:bg-white text-[#8d6e63] transition-colors text-xl font-bold cursor-pointer">&times;</button>
         </div>
         <div id="spotify-embed-container" class="w-full rounded-2xl overflow-hidden h-[80px] bg-white/30 shadow-inner">
         </div>
@@ -382,7 +382,7 @@
                         '你的存在讓天慢慢變亮',
                         'Let the first light carry us home',
                         'Let the quiet dawn unfold',
-                        'In every breath你 rise, you rise',
+                        'In every breath you rise, you rise',
                         'A gentle world begins to glow',
                         '海面像呼吸般平穩',
                         '你的影子在晨光裡越來越清楚',
@@ -547,16 +547,28 @@
 
                 tracks.forEach(track => create3DBalloon(track));
 
+                // 這裡做「上排 3 顆、風中之王 & 假曬下移一排」
                 function layoutBalloons() {
                     const total = balloons.length;
                     if (!total) return;
+
                     const availableWidth = window.innerWidth * 0.8;
                     const baseSpacing = 140;
                     const spacing = Math.min(baseSpacing, availableWidth / Math.max(total - 1, 1));
+
                     const startX = -spacing * (total - 1) / 2;
-                    const y = (window.innerHeight > 700) ? 80 : 40;
+                    const yTop = (window.innerHeight > 700) ? 80 : 40;
+                    const rowOffset = (window.innerHeight > 700) ? 90 : 70; // 中排往下距離
+
                     balloons.forEach((b, i) => {
-                        const x = startX + i * spacing;
+                        let x = startX + i * spacing;
+                        let y = yTop;
+
+                        // i === 1: 風中之王, i === 3: 假曬 → 往下成為中排
+                        if (i === 1 || i === 3) {
+                            y = yTop + rowOffset;
+                        }
+
                         b.userData.basePos.set(x, y, 0);
                         b.position.set(x, y, 0);
                     });
