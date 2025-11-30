@@ -89,7 +89,7 @@
             transform: translateY(0);
         }
 
-        /* Tooltip：貼在氣球上方 */
+        /* Tooltip：貼在氣球上方，兩行：歌名 + 歌詞 */
         .interaction-hint {
             position: absolute;
             pointer-events: none;
@@ -205,49 +205,200 @@
     </div>
 
     <footer class="fixed bottom-2 w-full text-center text-[#8d6e63] text-[10px] md:text-xs z-10 pointer-events-none opacity-70 font-bold">
-        <p>© 2025 Wang Bu-Wang. All Rights Reserved。</p>
+        <p>© 2025 Wang Bu-Wang. All Rights Reserved.</p>
     </footer>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // 歌曲 & 圖示 & 顏色 & （凌晨號）歌詞
+            // 歌曲 & 顏色 & icon & 歌詞
             const tracks = [
-                { title: "別憋尿", id: "6Wqo6QDdmyGJzrRdjFHIpJ", color: 0x66bb6a, icon: "🌱" },
-                { title: "風中之王：賓果大典", id: "5H9vjpgQ6KVrnniWCusuRK", color: 0xab47bc, icon: "👑" },
-                { title: "解決哥哥", id: "1vhgLqFWawvFnaqDqu2cw1", color: 0x1e88e5, icon: "🔧" },
-                { title: "假曬假曬我要去假曬", id: "7xdlWK8HI9r8fdKROS8cL8", color: 0xef5350, icon: "🐶" },
-                { 
-                    title: "凌晨號", 
-                    id: "0hhf9S22WR8ngIV8Hu3Yiu", 
-                    color: 0xffc107, 
-                    icon: "🌙",
+                {
+                    title: '別憋尿',
+                    id: '6Wqo6QDdmyGJzrRdjFHIpJ',
+                    color: 0x66bb6a,
+                    icon: '🌱',
                     lyrics: [
-                        "Passion, feel right，慢慢醒來",
-                        "你站在硝聲光照陰霾，流星拂來尤然還在",
-                        "凌晨號 我們映照",
-                        "世界在很安靜地張開",
-                        "宸色沿著天空伸展",
-                        "林色退後，你微微亮起",
-                        "我聽見你心裡一簇小小的光",
-                        "我們迎著浩，凌晨號輕揚",
-                        "林色退後，宸光展開，浩瀚全都照進來",
-                        "你的存在讓天慢慢變亮",
-                        "Let the first light carry us home",
-                        "Let the quiet dawn unfold",
-                        "In every breath you rise, you rise",
-                        "A gentle world begins to glow",
-                        "海面像呼吸般平穩",
-                        "你的影子在晨光裡越來越清楚",
-                        "凌晨號啟航，我們迎著",
-                        "未來在你眼裡悄悄盛開",
-                        "天幕被光推得更遠",
-                        "林色退後，你把黑暗都溫柔了",
-                        "光落在你身上像是祝福",
-                        "世界因你而重新明亮",
-                        "Carry this dawn, carry this hope",
-                        "Let every shadow fade below",
-                        "You are the light, the rising glow",
-                        "And we sail on, we sail on"
+                        '我們總是在憋尿，從清晨睜眼那刻開始',
+                        '呼吸之下，重量悄悄積聚',
+                        '別尿在車陣裡，別尿在會議桌前',
+                        '別尿在無人敢離席的宴會裡',
+                        '世界運轉，其實靠著每個人的忍耐',
+                        '滴答… 憋尿，憋尿，憋尿',
+                        '宮殿是憋尿砌成的石',
+                        '法律是憋尿寫下的線',
+                        '憋尿讓野獸變成人',
+                        '憋尿讓衝動化作制度',
+                        '憋尿讓我們能在彼此的沉默中共處',
+                        '憋尿也是雕刻，嗨聲一次又一次落下',
+                        '在石壁上鑿出生命的臉龐',
+                        '別尿，別尿，別尿',
+                        '文明的塔樓高築在憋尿的根基',
+                        '釋放只是一場洪水的幻影',
+                        '別尿在螢幕閃爍的洪流裡',
+                        '別尿在祈禱、在合唱、在沉默的眼神裡',
+                        '憋尿，讓我們相信自己仍能活下去',
+                        '別尿啊，別尿啊',
+                        '我們在憋尿之上搭建時代的城牆',
+                        '直到最後一刻，滴答，滴答',
+                        '文明的呼吸與我們一同消散'
+                    ]
+                },
+                {
+                    title: '風中之王：賓果大典',
+                    id: '5H9vjpgQ6KVrnniWCusuRK',
+                    color: 0xab47bc,
+                    icon: '👑',
+                    lyrics: [
+                        '狂風裡掃著落葉，每片都像辭職信飛過臉頰',
+                        '雨像碎玻璃砸下來，我低頭說：「不好意思，請借過」',
+                        '有人開會，有人演講，我和垃圾桶開了一整天的戰場',
+                        '地板濕滑像政治立場，我一步不退，只為乾淨這一方',
+                        '第二天風暴升級成天譴，我全副武裝',
+                        '樹枝卡在縫隙裡對我大喊走開',
+                        '手套都裂了，掃把也歪了',
+                        '我還是把那條街掃得像新床單',
+                        '因為我知道，世界不會記得誰做事，只記得誰髒亂',
+                        '「BIN——GO！」那晚餐廳燈光像天堂開門',
+                        '主持人對麥克風說：「來BINGO啦！」',
+                        '我笑了一下，背後沒長水泡，內心卻像在進行國家考試',
+                        '數字一個個閃出來，像在向我敬禮',
+                        '「BIN——GO！」全場安靜一秒鐘，然後爆出歡呼',
+                        '我站起來，披著雨衣像披著王袍',
+                        '那九折的帳單，是命運給我的加冕禮',
+                        '「BINBIN——GO！」隔壁桌說我走運',
+                        '你試試和颱風打兩天再說',
+                        '我不是贏家，我是倖存者',
+                        '我在垃圾袋堆出的一條出路上中獎',
+                        '他們沒看見我怎麼用一塊破布擦出月光',
+                        '你要知道，有時候老天不賞光',
+                        '但他會賞你一顆，這一顆奇妙湊出命運的直線',
+                        '清潔不是工作，是和混亂的對話',
+                        '賓果不是遊戲，是那些不願髒的人的 sweet shower',
+                        '「BIN——GO！」我高喊，像是宣布革命成功',
+                        '這不是娛樂，是審判，是對我兩天戰鬥的回應',
+                        '九折只是現象，世界終於點頭承認',
+                        '我不是配角，是風雨裡的主角',
+                        '我不只是清潔，我是——BINGO王！'
+                    ]
+                },
+                {
+                    title: '解決哥哥',
+                    id: '1vhgLqFWawvFnaqDqu2cw1',
+                    color: 0x1e88e5,
+                    icon: '🔧',
+                    lyrics: [
+                        '有人喊我「解決～」我小跑就出現！',
+                        '有人喊我「哥哥～」我也舉手向前！',
+                        '但如果你喊「解決哥哥～～」',
+                        '我是解決哥哥！才不是姐姐哥哥！',
+                        '「積木倒了？」 「好，我處理！」',
+                        '「外套拉不起來？」 「交給我！」',
+                        '雖然我還沒會綁鞋帶',
+                        '但我會大喊：「我來了～～ 解決哥哥到場啦！」',
+                        '解決哥哥～喔嗨！ 解決哥哥～出發！',
+                        '到底該叫我什麼才不會搞錯呢',
+                        '是「解決」？ 是「哥哥」？ 還是一起喊才不會錯？',
+                        '不管你怎麼叫，我都會走過來',
+                        '我是解決哥哥！才不是姐姐哥哥！',
+                        '昨天我幫爸爸趕跑了椅子下面的貓咪',
+                        '還幫奶奶找到了她躲起來的貓咪',
+                        '門太重、玩具卡住、奶瓶打不開？',
+                        '這些問題我都處理過',
+                        '但我只想說一句話：',
+                        '「叫我解決哥哥，會比較帥！」',
+                        '解決哥哥～耶嘿！ 解決哥哥～出發！',
+                        '我的名字本身就是一個行動代號！',
+                        '你叫我「解決」，我會開始思考',
+                        '你叫我「哥哥」，我會假裝成熟',
+                        '你叫我「解決哥哥」，我會打直背挺胸說：',
+                        '「我來解決你們的困擾了！」',
+                        '我是解決哥哥！才不是姐姐哥哥！',
+                        '媽媽說：「別一直說你要解決，你只能有弟弟或妹妹」',
+                        '「但我想說的是——解決不分年齡啊！」',
+                        '解決哥哥！！來啦～～～！',
+                        '哪裡有事情，我就出現在哪裡！',
+                        '叫錯我沒關係，我都知道',
+                        '但記得下次叫清楚一點不然搞錯啦',
+                        '解決哥哥！我最會了！我真的會幫忙啊～',
+                        '雖然有時候只是幫忙笑一笑、陪你一起鬧一鬧',
+                        '不過你記得喔～我是解決哥哥！才不是姐姐哥哥！'
+                    ]
+                },
+                {
+                    title: '假曬假曬我要去假曬',
+                    id: '7xdlWK8HI9r8fdKROS8cL8',
+                    color: 0xef5350,
+                    icon: '🐶',
+                    lyrics: [
+                        '出發前誰說要養狗，現在全說這是爸的朋友',
+                        '副駕早被佔走，我只能邊握方向盤邊當狗的枕頭',
+                        '窗外風景都嫌無聊，老婆刷完五百則旅館低評號',
+                        '小孩開口就說還要多久，我只點頭裝作沒聽懂',
+                        '我知道牠在抖，在我腿上那毛球',
+                        '耳朵貼著我褲頭，傳來一聲低吼',
+                        '副駕說：「快到了，不用停。」',
+                        '但我大腿有點熱，我知道出事了',
+                        '假曬！假曬！我說我要「假曬！」',
+                        '狗狗應該要走一走，我真的不是想離開',
+                        '假曬！假曬！我要去「假曬！」',
+                        '走下車那刻，我只求陽光能快一點把我救開',
+                        '有人問我怎麼汗這麼多，我說這是責任的重量啦',
+                        '老婆喊說水壺還在車上，我回頭微笑說等我一下',
+                        '狗狗一臉開心又困惑，我扯著牠說：「乖乖走一走」',
+                        '其實我在繞路，找光源最強的角落',
+                        '把這片布料上多餘的溫柔烘過',
+                        '也許我從來不受重視，但不能再留下糟心印象',
+                        '一灘濕，是我最後的臉面，不能崩潰，只能被風晾乾',
+                        '假曬！假曬！快說我要「假曬！」',
+                        '這不是逃避責任，是我對這家庭的愛',
+                        '假曬！假曬！我只是「假曬！」',
+                        '如果他們問起來，就說爸爸正在替狗做防曬',
+                        '我不是沒情緒，只是沒有餘地',
+                        '大家的怒氣都要我來吸',
+                        '狗不會講話，我也選擇不講',
+                        '因為講了以後只會更不像一家',
+                        '假曬！假曬！就讓我繼續「假曬！」',
+                        '就算濕氣穿過內褲也不能放開',
+                        '假曬！假曬！這是我人生的假曬！',
+                        '陽光燙著我的羞愧，但至少我還算個爸爸',
+                        '至少還有狗狗會依賴',
+                        '假曬——這世界上最孤獨的愛，就是要裝作陽光不曬'
+                    ]
+                },
+                {
+                    title: '凌晨號',
+                    id: '0hhf9S22WR8ngIV8Hu3Yiu',
+                    color: 0xffc107,
+                    icon: '🌙',
+                    lyrics: [
+                        'Passion, feel right，慢慢醒來',
+                        '你站在硝聲光照陰霾，流星拂來尤然還在',
+                        '凌晨號，我們映照',
+                        '世界在很安靜地張開',
+                        '宸色沿著天空伸展',
+                        '林色退後，你微微亮起',
+                        '我聽見你心裡一簇小小的光',
+                        '我們迎著浩，凌晨號輕揚',
+                        '林色退後，宸光展開，浩瀚全都照進來',
+                        '你的存在讓天慢慢變亮',
+                        'Let the first light carry us home',
+                        'Let the quiet dawn unfold',
+                        'In every breath you rise, you rise',
+                        'A gentle world begins to glow',
+                        '海面像呼吸般平穩',
+                        '你的影子在晨光裡越來越清楚',
+                        '凌晨號啟航，我們迎著',
+                        '未來在你眼裡悄悄盛開',
+                        '天幕被光推得更遠',
+                        '林色退後，你把黑暗都溫柔了',
+                        '光落在你身上像是祝福',
+                        '我們迎著浩，凌晨號啟航',
+                        '林色退後，陽光展開，浩瀚全都照進來',
+                        '世界因你而重新明亮',
+                        'Carry this dawn, carry this hope',
+                        'Let every shadow fade below',
+                        'You are the light, the rising glow',
+                        'And we sail on, we sail on'
                     ]
                 }
             ];
@@ -263,7 +414,7 @@
             const tooltipTitle = document.getElementById('balloon-tooltip-title');
             const tooltipLyric = document.getElementById('balloon-tooltip-lyric');
 
-            // 歌詞輪播狀態（僅用在凌晨號）
+            // 歌詞輪播設定（全部歌曲共用）
             const LYRIC_INTERVAL = 2600; // 每 2.6 秒換一句
             const lyricState = {
                 trackId: null,
@@ -271,12 +422,12 @@
                 lastTime: 0
             };
 
-            function resetLyricState() {
+            function clearLyric() {
                 lyricState.trackId = null;
                 lyricState.index = 0;
                 lyricState.lastTime = 0;
-                tooltipLyric.textContent = "";
-                tooltipLyric.style.display = "none";
+                tooltipLyric.textContent = '';
+                tooltipLyric.style.display = 'none';
             }
 
             // 播放邏輯 + 播放器顏色同步
@@ -308,8 +459,8 @@
                 playerArea.classList.remove('active');
                 spotifyContainer.innerHTML = '';
                 // 關掉時恢復較柔和的陰影
-                playerArea.style.boxShadow = "0 8px 32px rgba(230, 169, 24, 0.15)";
-                playerArea.style.borderColor = "rgba(255, 255, 255, 0.9)";
+                playerArea.style.boxShadow = '0 8px 32px rgba(230, 169, 24, 0.15)';
+                playerArea.style.borderColor = 'rgba(255, 255, 255, 0.9)';
             });
 
             function initThreeJS() {
@@ -528,130 +679,120 @@
                     return null;
                 }
 
-function animate() {
-    requestAnimationFrame(animate);
-    const time = Date.now();
+                function animate() {
+                    requestAnimationFrame(animate);
+                    const time = Date.now();
 
-    // 相機微動
-    const autoX = Math.sin(time * 0.00015) * 18;
-    const autoY = Math.cos(time * 0.0001) * 10;
-    const desiredPos = new THREE.Vector3(
-        cameraBasePos.x + cameraTargetOffset.x + autoX,
-        cameraBasePos.y + cameraTargetOffset.y + autoY,
-        cameraBasePos.z
-    );
-    camera.position.lerp(desiredPos, 0.05);
-    camera.lookAt(0, 0, 0);
+                    // 相機微動
+                    const autoX = Math.sin(time * 0.00015) * 18;
+                    const autoY = Math.cos(time * 0.0001) * 10;
+                    const desiredPos = new THREE.Vector3(
+                        cameraBasePos.x + cameraTargetOffset.x + autoX,
+                        cameraBasePos.y + cameraTargetOffset.y + autoY,
+                        cameraBasePos.z
+                    );
+                    camera.position.lerp(desiredPos, 0.05);
+                    camera.lookAt(0, 0, 0);
 
-    // 氣球浮動
-    balloons.forEach(b => {
-        const ud = b.userData;
-        const floatY = Math.sin(time * ud.speed + ud.randomOffset) * 20;
-        const floatX = Math.cos(time * ud.speed * 1.2 + ud.randomOffset) * 16;
+                    // 氣球浮動
+                    balloons.forEach(b => {
+                        const ud = b.userData;
+                        const floatY = Math.sin(time * ud.speed + ud.randomOffset) * 20;
+                        const floatX = Math.cos(time * ud.speed * 1.2 + ud.randomOffset) * 16;
 
-        let targetScale = 1;
-        let lift = 0;
+                        let targetScale = 1;
+                        let lift = 0;
 
-        if (ud.isHovered) {
-            targetScale = 1.25;
-            lift = -16;
-            b.rotation.z = Math.sin(time * 0.01) * 0.12;
-            const mesh = b.children[0];
-            if (mesh && mesh.material && mesh.material.emissive) {
-                mesh.material.emissiveIntensity = 0.6;
-            }
-        } else {
-            b.rotation.z = Math.sin(time * ud.speed + ud.randomOffset) * 0.05;
-            const mesh = b.children[0];
-            if (mesh && mesh.material && mesh.material.emissive) {
-                mesh.material.emissiveIntensity = 0.2;
-            }
-        }
+                        if (ud.isHovered) {
+                            targetScale = 1.25;
+                            lift = -16;
+                            b.rotation.z = Math.sin(time * 0.01) * 0.12;
+                            const mesh = b.children[0];
+                            if (mesh && mesh.material && mesh.material.emissive) {
+                                mesh.material.emissiveIntensity = 0.6;
+                            }
+                        } else {
+                            b.rotation.z = Math.sin(time * ud.speed + ud.randomOffset) * 0.05;
+                            const mesh = b.children[0];
+                            if (mesh && mesh.material && mesh.material.emissive) {
+                                mesh.material.emissiveIntensity = 0.2;
+                            }
+                        }
 
-        b.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.12);
-        b.position.x = ud.basePos.x + floatX;
-        b.position.y = ud.basePos.y + floatY + lift;
-    });
+                        b.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.12);
+                        b.position.x = ud.basePos.x + floatX;
+                        b.position.y = ud.basePos.y + floatY + lift;
+                    });
 
-    // 背景幾何
-    floaters.forEach(f => {
-        f.rotation.x += f.userData.rotSpeed.x;
-        f.rotation.y += f.userData.rotSpeed.y;
-        f.position.y = f.userData.baseY + Math.sin(time * 0.002 + f.position.x) * 18;
-    });
+                    // 背景幾何
+                    floaters.forEach(f => {
+                        f.rotation.x += f.userData.rotSpeed.x;
+                        f.rotation.y += f.userData.rotSpeed.y;
+                        f.position.y = f.userData.baseY + Math.sin(time * 0.002 + f.position.x) * 18;
+                    });
 
-    // 雲
-    clouds.forEach(c => {
-        c.position.x += c.userData.speed;
-        if (c.position.x > 1000) c.position.x = -1000;
-    });
+                    // 雲
+                    clouds.forEach(c => {
+                        c.position.x += c.userData.speed;
+                        if (c.position.x > 1000) c.position.x = -1000;
+                    });
 
-    // 重置 hover 狀態 / tooltip 外觀
-    balloons.forEach(b => b.userData.isHovered = false);
-    hoveredBalloon = null;
-    tooltip.style.opacity = 0;
-    document.body.style.cursor = 'default';
+                    // 初始 hover 清空
+                    balloons.forEach(b => b.userData.isHovered = false);
+                    hoveredBalloon = null;
+                    tooltip.style.opacity = 0;
+                    document.body.style.cursor = 'default';
 
-    // 看現在指標底下有沒有氣球
-    const balloon = findBalloonUnderPointer();
+                    const balloon = findBalloonUnderPointer();
 
-    if (balloon) {
-        balloon.userData.isHovered = true;
-        hoveredBalloon = balloon;
-        document.body.style.cursor = 'pointer';
+                    if (balloon) {
+                        balloon.userData.isHovered = true;
+                        hoveredBalloon = balloon;
+                        document.body.style.cursor = 'pointer';
 
-        const track = balloon.userData.track;
+                        const track = balloon.userData.track;
 
-        // tooltip 位置
-        const worldPos = balloon.position.clone();
-        worldPos.project(camera);
-        let sx = (worldPos.x * 0.5 + 0.5) * window.innerWidth;
-        let sy = (-(worldPos.y * 0.5) + 0.5) * window.innerHeight - 10;
+                        // tooltip 位置
+                        const worldPos = balloon.position.clone();
+                        worldPos.project(camera);
+                        let sx = (worldPos.x * 0.5 + 0.5) * window.innerWidth;
+                        let sy = (-(worldPos.y * 0.5) + 0.5) * window.innerHeight - 10;
 
-        const margin = 20;
-        sx = Math.min(Math.max(sx, margin), window.innerWidth - margin);
-        sy = Math.min(Math.max(sy, margin), window.innerHeight - margin);
+                        const margin = 20;
+                        sx = Math.min(Math.max(sx, margin), window.innerWidth - margin);
+                        sy = Math.min(Math.max(sy, margin), window.innerHeight - margin);
 
-        tooltip.style.left = sx + 'px';
-        tooltip.style.top = sy + 'px';
-        tooltipIcon.textContent = track.icon;
-        tooltipTitle.textContent = track.title;
-        tooltip.style.opacity = 1;
+                        tooltip.style.left = sx + 'px';
+                        tooltip.style.top = sy + 'px';
+                        tooltipIcon.textContent = track.icon;
+                        tooltipTitle.textContent = track.title;
+                        tooltip.style.opacity = 1;
 
-        // ★ 只有「凌晨號」那種有 lyrics 的才跑歌詞
-        if (track.lyrics && track.lyrics.length > 0) {
-            // 第一次 hover 或剛從別首歌切過來
-            if (lyricState.trackId !== track.id) {
-                lyricState.trackId = track.id;
-                lyricState.index = 0;
-                lyricState.lastTime = time;
-                tooltipLyric.textContent = track.lyrics[0];
-            } else if (time - lyricState.lastTime > LYRIC_INTERVAL) {
-                // 間隔時間到 → 換下一句
-                lyricState.index = (lyricState.index + 1) % track.lyrics.length;
-                lyricState.lastTime = time;
-                tooltipLyric.textContent = track.lyrics[lyricState.index];
-            }
-            tooltipLyric.style.display = "block";
-        } else {
-            // 其他歌不顯示歌詞
-            tooltipLyric.textContent = "";
-            tooltipLyric.style.display = "none";
-            // 同時把狀態清空，避免殘留
-            lyricState.trackId = null;
-        }
+                        // 有 lyrics 才輪播
+                        if (track.lyrics && track.lyrics.length > 0) {
+                            if (lyricState.trackId !== track.id) {
+                                // 首次 hover 或從別首切過來
+                                lyricState.trackId = track.id;
+                                lyricState.index = 0;
+                                lyricState.lastTime = time;
+                                tooltipLyric.textContent = track.lyrics[0];
+                            } else if (time - lyricState.lastTime > LYRIC_INTERVAL) {
+                                // 間隔到 → 換下一句
+                                lyricState.index = (lyricState.index + 1) % track.lyrics.length;
+                                lyricState.lastTime = time;
+                                tooltipLyric.textContent = track.lyrics[lyricState.index];
+                            }
+                            tooltipLyric.style.display = 'block';
+                        } else {
+                            clearLyric();
+                        }
+                    } else {
+                        // 滑出所有氣球 → 歌詞清空
+                        clearLyric();
+                    }
 
-    } else {
-        // 沒有任何氣球被 hover 到 → 歌詞狀態清空
-        lyricState.trackId = null;
-        lyricState.index = 0;
-        lyricState.lastTime = 0;
-        tooltipLyric.textContent = "";
-        tooltipLyric.style.display = "none";
-    }
-
-    renderer.render(scene, camera);
-}
+                    renderer.render(scene, camera);
+                }
 
                 // pointer 事件支援滑鼠 + 手機觸控
                 renderer.domElement.addEventListener('pointermove', (event) => {
@@ -683,4 +824,3 @@ function animate() {
     </script>
 </body>
 </html>
-
