@@ -569,7 +569,7 @@
                     const spacing = Math.min(baseSpacing, availableWidth / Math.max(total - 1, 1));
 
                     const startX = -spacing * (total - 1) / 2;
-                    const y = (window.innerHeight > 700) ? 80 : 40; // 中間略偏上，手機再微上移
+                    const y = (window.innerHeight > 700) ? 80 : 40; // 中間略偏上
 
                     balloons.forEach((b, i) => {
                         const x = startX + i * spacing;
@@ -712,17 +712,17 @@
                     tooltip.style.opacity = 0;
                     document.body.style.cursor = 'default';
 
-                    const balloon = findBalloonUnderPointer();
+                    const hitBalloon = findBalloonUnderPointer();
 
-                    if (balloon) {
-                        balloon.userData.isHovered = true;
-                        hoveredBalloon = balloon;
+                    if (hitBalloon) {
+                        hitBalloon.userData.isHovered = true;
+                        hoveredBalloon = hitBalloon;
                         document.body.style.cursor = 'pointer';
 
-                        const track = balloon.userData.track;
+                        const track = hitBalloon.userData.track;
 
                         // tooltip 位置
-                        const worldPos = balloon.position.clone();
+                        const worldPos = hitBalloon.position.clone();
                         worldPos.project(camera);
                         let sx = (worldPos.x * 0.5 + 0.5) * window.innerWidth;
                         let sy = (-(worldPos.y * 0.5) + 0.5) * window.innerHeight - 10;
@@ -737,7 +737,7 @@
                         tooltipTitle.textContent = track.title;
                         tooltip.style.opacity = 1;
 
-                        // 有 lyrics 才輪播
+                        // 歌詞輪播
                         if (track.lyrics && track.lyrics.length > 0) {
                             if (lyricState.trackId !== track.id) {
                                 lyricState.trackId = track.id;
@@ -759,7 +759,30 @@
 
                     const anyHovered = !!hoveredBalloon;
 
-                    // 氣球浮動 + 放大/縮小邏輯
+                    // 若有 hover，先算「下面那一列」其他氣球的排列
+                    let otherLayout = null;
+                    const centerRowY = 40;   // 中間那顆的高度（畫面大約中間偏上）
+                    const othersRowY = -140; // 其它氣球往下拉一大段，排成一列
+
+                    if (anyHovered) {
+                        const others = balloons.filter(b => b !== hoveredBalloon);
+                        const totalOthers = others.length;
+                        otherLayout = new Map();
+                        if (totalOthers > 0) {
+                            const availableWidth = window.innerWidth * 0.7;
+                            const baseSpacing = 120;
+                            const spacing = Math.min(baseSpacing, availableWidth / Math.max(totalOthers - 1, 1));
+                            const startX = -spacing * (totalOthers - 1) / 2;
+                            others.forEach((b, idx) => {
+                                otherLayout.set(b, {
+                                    x: startX + idx * spacing,
+                                    y: othersRowY
+                                });
+                            });
+                        }
+                    }
+
+                    // 氣球浮動 + 放大/縮小 + 位置切換
                     balloons.forEach(b => {
                         const ud = b.userData;
                         const floatY = Math.sin(time * ud.speed + ud.randomOffset) * 20;
@@ -767,24 +790,40 @@
 
                         let targetScale = 1;
                         let lift = 0;
+                        let baseX = ud.basePos.x;
+                        let baseY = ud.basePos.y;
 
-                        if (ud.isHovered) {
-                            targetScale = 1.4;  // 被指到的那顆放大
-                            lift = -20;
+                        if (!anyHovered) {
+                            // 沒有人被 hover：全部在原來那一列
+                            targetScale = 1;
+                        } else if (ud.isHovered) {
+                            // 被指到的那顆：置中 + 放大 + 稍微往上
+                            targetScale = 1.6;
+                            lift = 10;
+                            baseX = 0;
+                            baseY = centerRowY;
                             b.rotation.z = Math.sin(time * 0.01) * 0.12;
                             const mesh = b.children[0];
                             if (mesh && mesh.material && mesh.material.emissive) {
-                                mesh.material.emissiveIntensity = 0.6;
+                                mesh.material.emissiveIntensity = 0.7;
                             }
-                        } else if (anyHovered) {
-                            targetScale = 0.75; // 其他氣球縮小
+                        } else {
+                            // 其他氣球：縮小到下面那一列
+                            targetScale = 0.65;
+                            const layout = otherLayout && otherLayout.get(b);
+                            if (layout) {
+                                baseX = layout.x;
+                                baseY = layout.y;
+                            }
                             b.rotation.z = Math.sin(time * ud.speed + ud.randomOffset) * 0.03;
                             const mesh = b.children[0];
                             if (mesh && mesh.material && mesh.material.emissive) {
                                 mesh.material.emissiveIntensity = 0.15;
                             }
-                        } else {
-                            targetScale = 1;    // 沒 hover 時全部回到原始大小
+                        }
+
+                        if (!ud.isHovered && !anyHovered) {
+                            // 沒 hover 的一般情況
                             b.rotation.z = Math.sin(time * ud.speed + ud.randomOffset) * 0.05;
                             const mesh = b.children[0];
                             if (mesh && mesh.material && mesh.material.emissive) {
@@ -793,8 +832,8 @@
                         }
 
                         b.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.12);
-                        b.position.x = ud.basePos.x + floatX;
-                        b.position.y = ud.basePos.y + floatY + lift;
+                        b.position.x = baseX + floatX;
+                        b.position.y = baseY + floatY + lift;
                     });
 
                     renderer.render(scene, camera);
