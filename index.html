@@ -419,7 +419,7 @@
             const tooltipTitle = document.getElementById('balloon-tooltip-title');
             const tooltipLyric = document.getElementById('balloon-tooltip-lyric');
 
-            const LYRIC_INTERVAL = 2600;
+            const LYRIC_INTERVAL = 1200;
             const lyricState = { trackId: null, index: 0, lastTime: 0 };
 
             function clearLyric() {
@@ -427,7 +427,7 @@
                 lyricState.index = 0;
                 lyricState.lastTime = 0;
                 tooltipLyric.textContent = '';
-                tooltipLyric.style.display = 'none';
+                // 不再改 display，保持一直顯示，只清空文字
             }
 
             function playTrack(track) {
@@ -571,7 +571,7 @@
                         let x = startX + i * spacing;
                         let y = yTop;
 
-                        // 1: 賓果、3: 假曬 → 第二排，往畫面「下方」一些（three.js y 變小 = 往下）
+                        // 1: 賓果、3: 假曬 → 第二排（three.js y 變小 = 畫面往下）
                         if (i === 1 || i === 3) {
                             y = yTop - rowOffset;
                         }
@@ -732,7 +732,7 @@
                         tooltipTitle.textContent = track.title;
                         tooltip.style.opacity = 1;
 
-                        // ❗ 先顯示後量測寬度，再做邊界修正，避免被吃掉
+                        // 先顯示後量測寬度，再做邊界修正
                         const margin = 12;
                         const tooltipWidth = tooltip.offsetWidth || 160;
                         const halfW = tooltipWidth / 2;
@@ -753,7 +753,6 @@
                                 lyricState.lastTime = now;
                                 tooltipLyric.textContent = track.lyrics[lyricState.index];
                             }
-                            tooltipLyric.style.display = 'block';
                         } else {
                             clearLyric();
                         }
